@@ -7,6 +7,9 @@ type Props = {
         categories: number;
         tags: number;
         publishedPosts: number;
+        comments: number;
+        admins: number;
+        openInvitations: number;
     };
     recentPosts: Array<{
         id: number;
@@ -21,31 +24,33 @@ type Props = {
     }>;
 };
 
+const statCards = (stats: Props['stats']) => [
+    { label: 'Posts', value: stats.posts },
+    { label: 'Bestemmingen', value: stats.destinations },
+    { label: 'Gepubliceerd', value: stats.publishedPosts },
+    { label: 'Comments', value: stats.comments },
+    { label: 'Admins', value: stats.admins },
+    { label: 'Open invites', value: stats.openInvitations },
+];
+
 export default function DashboardIndex({ stats, recentPosts }: Props) {
     return (
         <DashboardLayout>
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
-                <p className="mt-2 text-slate-600">Beheer hier de content en houd overzicht over je travel blog.</p>
+                <p className="mt-2 max-w-2xl text-slate-600">
+                    Beheer hier content, administratoren en uitnodigingen. Als master-admin houd jij de controle over wie toegang krijgt en
+                    wie gedeactiveerd of gearchiveerd wordt.
+                </p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-                <div className="rounded-3xl border border-white/70 bg-white p-6 shadow-sm">
-                    <p className="text-sm text-slate-500">Totaal posts</p>
-                    <h2 className="mt-2 text-3xl font-bold text-slate-900">{stats.posts}</h2>
-                </div>
-                <div className="rounded-3xl border border-white/70 bg-white p-6 shadow-sm">
-                    <p className="text-sm text-slate-500">Bestemmingen</p>
-                    <h2 className="mt-2 text-3xl font-bold text-slate-900">{stats.destinations}</h2>
-                </div>
-                <div className="rounded-3xl border border-white/70 bg-white p-6 shadow-sm">
-                    <p className="text-sm text-slate-500">Categorieen</p>
-                    <h2 className="mt-2 text-3xl font-bold text-slate-900">{stats.categories}</h2>
-                </div>
-                <div className="rounded-3xl border border-white/70 bg-white p-6 shadow-sm">
-                    <p className="text-sm text-slate-500">Gepubliceerd</p>
-                    <h2 className="mt-2 text-3xl font-bold text-slate-900">{stats.publishedPosts}</h2>
-                </div>
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {statCards(stats).map((card) => (
+                    <div key={card.label} className="rounded-3xl border border-white/70 bg-white p-6 shadow-sm">
+                        <p className="text-sm text-slate-500">{card.label}</p>
+                        <h2 className="mt-2 text-3xl font-bold text-slate-900">{card.value}</h2>
+                    </div>
+                ))}
             </div>
 
             <div className="mt-8 rounded-3xl border border-white/70 bg-white p-6 shadow-sm">

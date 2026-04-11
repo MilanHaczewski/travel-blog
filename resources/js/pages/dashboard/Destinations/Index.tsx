@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 
 import DashboardLayout from '@/Layouts/DashboardLayout';
 
@@ -7,11 +7,28 @@ type Props = {
         id: number;
         title: string;
         country: string;
+        continent: string | null;
         posts_count: number;
+        latitude: number | null;
+        longitude: number | null;
     }>;
 };
 
 export default function DashboardDestinationsIndex({ destinations }: Props) {
+    const removeDestination = (destination: Props['destinations'][number]) => {
+        const confirmation = destination.posts_count > 0
+            ? `Weet je zeker dat je ${destination.title} wilt verwijderen? Dit verwijdert ook ${destination.posts_count} gekoppelde posts.`
+            : `Weet je zeker dat je ${destination.title} wilt verwijderen?`;
+
+        if (!window.confirm(confirmation)) {
+            return;
+        }
+
+        router.delete(`/dashboard/destinations/${destination.id}`, {
+            preserveScroll: true,
+        });
+    };
+
     return (
         <DashboardLayout>
             <div className="mb-6 flex items-center justify-between">
@@ -26,14 +43,24 @@ export default function DashboardDestinationsIndex({ destinations }: Props) {
 
             <div className="overflow-hidden rounded-3xl border border-white/70 bg-white shadow-sm">
                 {destinations.map((destination) => (
-                    <div key={destination.id} className="flex items-center justify-between border-b border-slate-100 px-6 py-4 last:border-b-0">
+                    <div key={destination.id} className="flex items-center justify-between gap-4 border-b border-slate-100 px-6 py-4 last:border-b-0">
                         <div>
                             <p className="font-semibold text-slate-900">{destination.title}</p>
-                            <p className="text-sm text-slate-500">{destination.country} • {destination.posts_count} posts</p>
+                            <p className="text-sm text-slate-500">
+                                {destination.country}
+                                {destination.continent ? ` / ${destination.continent}` : ''}
+                                {` / ${destination.posts_count} posts / `}
+                                {destination.latitude !== null && destination.longitude !== null ? 'pin staat klaar' : 'nog geen kaartpin'}
+                            </p>
                         </div>
-                        <Link href={`/dashboard/destinations/${destination.id}/edit`} className="text-sm font-semibold text-slate-700">
-                            Bewerken
-                        </Link>
+                        <div className="flex items-center gap-4">
+                            <Link href={`/dashboard/destinations/${destination.id}/edit`} className="text-sm font-semibold text-slate-700">
+                                Bewerken
+                            </Link>
+                            <button type="button" onClick={() => removeDestination(destination)} className="text-sm font-semibold text-[#cb5b4c]">
+                                Verwijderen
+                            </button>
+                        </div>
                     </div>
                 ))}
             </div>

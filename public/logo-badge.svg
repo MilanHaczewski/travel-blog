@@ -1,0 +1,23 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="72" fill="#8BD4D0"/>
+  <circle cx="349" cy="191" r="86" fill="#F6C44F"/>
+  <path d="M120 149C144 101 183 81 204 126C191 166 156 197 120 226C114 190 112 168 120 149Z" fill="#F45C34"/>
+  <path d="M169 149C193 101 232 81 253 126C240 166 205 197 169 226C163 190 161 168 169 149Z" fill="#ED5A2B"/>
+  <path d="M263 120C286 60 346 41 376 94C369 132 343 158 318 183L303 168C304 152 301 139 293 129C285 119 275 116 263 120Z" fill="#2E7B4E"/>
+  <path d="M274 161C283 106 332 84 370 115C372 143 355 163 331 182C314 170 294 163 274 161Z" fill="#316E47"/>
+  <path d="M258 177C270 118 224 86 183 122C183 150 204 177 228 196C235 188 246 181 258 177Z" fill="#3E8953"/>
+  <path d="M250 198C223 114 286 79 324 126C317 155 297 183 277 209L250 198Z" fill="#2B6D42"/>
+  <path d="M257 208L287 208L304 294H240L257 208Z" fill="#7A4A22"/>
+  <path d="M290 252H251" stroke="#1C3D2C" stroke-width="8" stroke-linecap="round"/>
+  <path d="M286 278H247" stroke="#1C3D2C" stroke-width="8" stroke-linecap="round"/>
+  <path d="M360 109L440 145L424 173L393 157L376 211L342 199L360 145L344 137L360 109Z" fill="#FFF6DD"/>
+  <path d="M353 381C297 337 213 339 160 381C168 434 205 462 256 462C307 462 344 434 353 381Z" fill="#24553A"/>
+  <path d="M147 358C110 337 98 292 137 266C173 274 200 300 214 342C188 356 166 362 147 358Z" fill="#4B8A49"/>
+  <path d="M370 351C406 327 417 286 382 260C344 270 319 298 302 340C329 351 351 356 370 351Z" fill="#4B8A49"/>
+  <path d="M120 316C84 297 77 257 111 232C148 241 172 266 188 306C161 316 139 320 120 316Z" fill="#3E7A43"/>
+  <path d="M391 310C426 291 434 252 401 227C364 236 338 261 323 301C350 311 372 315 391 310Z" fill="#3E7A43"/>
+  <path d="M130 417C168 447 343 447 381 417" stroke="#1C3D2C" stroke-width="22" stroke-linecap="round"/>
+  <text x="256" y="296" text-anchor="middle" font-size="64" font-weight="900" font-family="Arial, sans-serif" fill="#FFF6DD">TULIPS</text>
+  <text x="256" y="352" text-anchor="middle" font-size="44" font-weight="900" font-family="Arial, sans-serif" fill="#FFF6DD">AND</text>
+  <text x="256" y="426" text-anchor="middle" font-size="74" font-weight="900" font-family="Arial, sans-serif" fill="#FFF6DD">AREPAS</text>
+</svg>

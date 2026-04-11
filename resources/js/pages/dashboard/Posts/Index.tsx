@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 
 import DashboardLayout from '@/Layouts/DashboardLayout';
 
@@ -17,6 +17,16 @@ type Props = {
 };
 
 export default function DashboardPostsIndex({ posts }: Props) {
+    const removePost = (post: Props['posts'][number]) => {
+        if (!window.confirm(`Weet je zeker dat je "${post.title}" wilt verwijderen?`)) {
+            return;
+        }
+
+        router.delete(`/dashboard/posts/${post.id}`, {
+            preserveScroll: true,
+        });
+    };
+
     return (
         <DashboardLayout>
             <div className="mb-6 flex items-center justify-between">
@@ -31,11 +41,11 @@ export default function DashboardPostsIndex({ posts }: Props) {
 
             <div className="overflow-hidden rounded-3xl border border-white/70 bg-white shadow-sm">
                 {posts.map((post) => (
-                    <div key={post.id} className="flex items-center justify-between border-b border-slate-100 px-6 py-4 last:border-b-0">
+                    <div key={post.id} className="flex items-center justify-between gap-4 border-b border-slate-100 px-6 py-4 last:border-b-0">
                         <div>
                             <p className="font-semibold text-slate-900">{post.title}</p>
                             <p className="text-sm text-slate-500">
-                                {post.destination?.title ?? 'Geen bestemming'} • {post.category?.name ?? 'Geen categorie'}
+                                {post.destination?.title ?? 'Geen bestemming'} / {post.category?.name ?? 'Geen categorie'}
                             </p>
                         </div>
                         <div className="flex items-center gap-4">
@@ -43,6 +53,9 @@ export default function DashboardPostsIndex({ posts }: Props) {
                             <Link href={`/dashboard/posts/${post.id}/edit`} className="text-sm font-semibold text-slate-700">
                                 Bewerken
                             </Link>
+                            <button type="button" onClick={() => removePost(post)} className="text-sm font-semibold text-[#cb5b4c]">
+                                Verwijderen
+                            </button>
                         </div>
                     </div>
                 ))}

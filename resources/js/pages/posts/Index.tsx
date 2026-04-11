@@ -29,11 +29,11 @@ export default function PostsIndex({ posts, featuredPost }: Props) {
 
             <section className="pb-10 pt-16">
                 <Container>
-                    <div className="rounded-[2rem] bg-[#0f766e] p-10 text-white">
-                        <p className="text-sm font-bold uppercase tracking-[0.3em] text-white/70">Travel stories</p>
-                        <h1 className="mt-4 max-w-3xl text-5xl font-black">Verhalen, tips en routes uit de plekken waar we bleven hangen.</h1>
+                    <div className="rounded-[2rem] bg-[#cb5b4c] p-10 text-white">
+                        <p className="text-sm font-bold uppercase tracking-[0.3em] text-white/70">Tulips & Arepas</p>
+                        <h1 className="mt-4 max-w-3xl text-5xl font-black">Verhalen van Milan en Juliana, van interrail tot Colombia.</h1>
                         <p className="mt-4 max-w-2xl text-lg leading-8 text-white/85">
-                            Hier vind je alle blogposts, van city guides tot langzame roadtripdagen.
+                            Hier verzamelen we alle avonturen die we samen willen bewaren en delen, met tekst, foto’s en video’s uit onze reizen.
                         </p>
                     </div>
                 </Container>
@@ -49,10 +49,10 @@ export default function PostsIndex({ posts, featuredPost }: Props) {
                                 className="h-full min-h-[320px] w-full object-cover"
                             />
                             <div className="p-8">
-                                <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#0f766e]">Uitgelicht</p>
+                                <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#cb5b4c]">Uitgelicht</p>
                                 <h2 className="mt-4 text-4xl font-bold text-slate-900">{featuredPost.title}</h2>
                                 <p className="mt-4 leading-8 text-slate-600">{featuredPost.excerpt}</p>
-                                <Link href={`/posts/${featuredPost.slug}`} className="mt-6 inline-flex rounded-full bg-[#0f766e] px-5 py-3 text-sm font-semibold text-white">
+                                <Link href={`/posts/${featuredPost.slug}`} className="mt-6 inline-flex rounded-full bg-[#cb5b4c] px-5 py-3 text-sm font-semibold text-white">
                                     Lees dit verhaal
                                 </Link>
                             </div>
@@ -72,13 +72,13 @@ export default function PostsIndex({ posts, featuredPost }: Props) {
                                     className="h-56 w-full object-cover"
                                 />
                                 <div className="p-6">
-                                    <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#0f766e]">
+                                    <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#cb5b4c]">
                                         <span>{post.destination?.title ?? 'Onbekende plek'}</span>
                                         {post.category?.name ? <span>{post.category.name}</span> : null}
                                     </div>
                                     <h2 className="mt-4 text-2xl font-bold text-slate-900">{post.title}</h2>
                                     <p className="mt-3 text-sm leading-7 text-slate-600">{post.excerpt}</p>
-                                    <Link href={`/posts/${post.slug}`} className="mt-5 inline-flex text-sm font-semibold text-[#0f766e]">
+                                    <Link href={`/posts/${post.slug}`} className="mt-5 inline-flex text-sm font-semibold text-[#cb5b4c]">
                                         Verder lezen
                                     </Link>
                                 </div>

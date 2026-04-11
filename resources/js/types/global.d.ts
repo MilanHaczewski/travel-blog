@@ -1,11 +1,11 @@
-import type { Auth } from '@/types/auth';
+import type { Auth, Flash } from '@/types/auth';
 
 declare module '@inertiajs/core' {
     export interface InertiaConfig {
         sharedPageProps: {
             name: string;
             auth: Auth;
-            sidebarOpen: boolean;
+            flash: Flash;
             [key: string]: unknown;
         };
     }

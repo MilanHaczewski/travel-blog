@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Destination;
+use App\Support\PostDeletion;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -70,9 +72,12 @@ class DestinationController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'country' => ['required', 'string', 'max:255'],
+            'continent' => ['nullable', 'in:Europa,Zuid-Amerika,Noord-Amerika,Azie,Afrika,Oceanie'],
             'city' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'cover_image' => ['nullable', 'url', 'max:2048'],
+            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
         ]);
 
         $data['slug'] = Str::slug($data['title']);
@@ -94,9 +99,12 @@ class DestinationController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'country' => ['required', 'string', 'max:255'],
+            'continent' => ['nullable', 'in:Europa,Zuid-Amerika,Noord-Amerika,Azie,Afrika,Oceanie'],
             'city' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'cover_image' => ['nullable', 'url', 'max:2048'],
+            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
         ]);
 
         $data['slug'] = Str::slug($data['title']);
@@ -108,8 +116,16 @@ class DestinationController extends Controller
 
     public function destroy(Destination $destination): RedirectResponse
     {
-        $destination->delete();
+        DB::transaction(function () use ($destination): void {
+            $destination->loadMissing('posts.media');
 
-        return redirect()->route('dashboard.destinations.index');
+            $destination->posts->each(function ($post): void {
+                PostDeletion::delete($post);
+            });
+
+            $destination->delete();
+        });
+
+        return redirect()->route('dashboard.destinations.index')->with('success', 'Bestemming verwijderd.');
     }
 }
