@@ -2,6 +2,7 @@ import { Head, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 
 import Container from '@/components/container';
+import { useI18n } from '@/lib/i18n';
 import AppLayout from '@/Layouts/AppLayout';
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export default function AcceptInvitation({ invitation }: Props) {
+    const { t } = useI18n();
     const form = useForm({
         name: '',
         password: '',
@@ -25,20 +27,20 @@ export default function AcceptInvitation({ invitation }: Props) {
 
     return (
         <AppLayout>
-            <Head title="Administrator uitnodiging" />
+            <Head title={t('authInvitation.title')} />
 
             <section className="py-20">
                 <Container className="max-w-2xl">
                     <div className="rounded-[2rem] border border-white/70 bg-white/85 p-10 shadow-sm">
-                        <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#0f766e]">Uitnodiging</p>
-                        <h1 className="mt-4 text-4xl font-black text-slate-900">Activeer je administrator-account</h1>
+                        <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#0f766e]">{t('authInvitation.label')}</p>
+                        <h1 className="mt-4 text-4xl font-black text-slate-900">{t('authInvitation.heading')}</h1>
                         <p className="mt-4 text-slate-600">
-                            Deze uitnodiging is bedoeld voor <span className="font-semibold text-slate-900">{invitation.email}</span>.
+                            {t('authInvitation.body', { email: invitation.email })}
                         </p>
 
                         <form onSubmit={submit} className="mt-8 space-y-5">
                             <label className="block space-y-2">
-                                <span className="text-sm font-semibold text-slate-700">Naam</span>
+                                <span className="text-sm font-semibold text-slate-700">{t('authInvitation.name')}</span>
                                 <input
                                     value={form.data.name}
                                     onChange={(event) => form.setData('name', event.target.value)}
@@ -48,7 +50,7 @@ export default function AcceptInvitation({ invitation }: Props) {
                             </label>
 
                             <label className="block space-y-2">
-                                <span className="text-sm font-semibold text-slate-700">Wachtwoord</span>
+                                <span className="text-sm font-semibold text-slate-700">{t('authInvitation.password')}</span>
                                 <input
                                     type="password"
                                     value={form.data.password}
@@ -59,7 +61,7 @@ export default function AcceptInvitation({ invitation }: Props) {
                             </label>
 
                             <label className="block space-y-2">
-                                <span className="text-sm font-semibold text-slate-700">Herhaal wachtwoord</span>
+                                <span className="text-sm font-semibold text-slate-700">{t('authInvitation.confirmPassword')}</span>
                                 <input
                                     type="password"
                                     value={form.data.password_confirmation}
@@ -69,7 +71,7 @@ export default function AcceptInvitation({ invitation }: Props) {
                             </label>
 
                             <button type="submit" disabled={form.processing} className="rounded-full bg-[#0f766e] px-6 py-3 text-sm font-semibold text-white disabled:opacity-60">
-                                Account activeren
+                                {t('authInvitation.submit')}
                             </button>
                         </form>
                     </div>

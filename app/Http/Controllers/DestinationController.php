@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Destination;
+use App\Support\LocalizedContent;
 use App\Support\PostDeletion;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -70,16 +72,25 @@ class DestinationController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'country' => ['required', 'string', 'max:255'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'title_translations' => ['nullable', 'array'],
+            'title_translations.*' => ['nullable', 'string', 'max:255'],
+            'country' => ['nullable', 'string', 'max:255'],
+            'country_translations' => ['nullable', 'array'],
+            'country_translations.*' => ['nullable', 'string', 'max:255'],
             'continent' => ['nullable', 'in:Europa,Zuid-Amerika,Noord-Amerika,Azie,Afrika,Oceanie'],
             'city' => ['nullable', 'string', 'max:255'],
+            'city_translations' => ['nullable', 'array'],
+            'city_translations.*' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'description_translations' => ['nullable', 'array'],
+            'description_translations.*' => ['nullable', 'string'],
             'cover_image' => ['nullable', 'url', 'max:2048'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
         ]);
 
+        $data = $this->prepareLocalizedDestinationData($data);
         $data['slug'] = Str::slug($data['title']);
 
         Destination::create($data);
@@ -90,23 +101,46 @@ class DestinationController extends Controller
     public function edit(Destination $destination): Response
     {
         return Inertia::render('dashboard/Destinations/Form', [
-            'destination' => $destination,
+            'destination' => [
+                'id' => $destination->id,
+                'title' => $destination->title,
+                'title_translations' => LocalizedContent::formValues($destination->title_translations, $destination->title),
+                'country' => $destination->country,
+                'country_translations' => LocalizedContent::formValues($destination->country_translations, $destination->country),
+                'continent' => $destination->continent,
+                'city' => $destination->city,
+                'city_translations' => LocalizedContent::formValues($destination->city_translations, $destination->city),
+                'description' => $destination->description,
+                'description_translations' => LocalizedContent::formValues($destination->description_translations, $destination->description),
+                'cover_image' => $destination->cover_image,
+                'latitude' => $destination->latitude,
+                'longitude' => $destination->longitude,
+            ],
         ]);
     }
 
     public function update(Request $request, Destination $destination): RedirectResponse
     {
         $data = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'country' => ['required', 'string', 'max:255'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'title_translations' => ['nullable', 'array'],
+            'title_translations.*' => ['nullable', 'string', 'max:255'],
+            'country' => ['nullable', 'string', 'max:255'],
+            'country_translations' => ['nullable', 'array'],
+            'country_translations.*' => ['nullable', 'string', 'max:255'],
             'continent' => ['nullable', 'in:Europa,Zuid-Amerika,Noord-Amerika,Azie,Afrika,Oceanie'],
             'city' => ['nullable', 'string', 'max:255'],
+            'city_translations' => ['nullable', 'array'],
+            'city_translations.*' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'description_translations' => ['nullable', 'array'],
+            'description_translations.*' => ['nullable', 'string'],
             'cover_image' => ['nullable', 'url', 'max:2048'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
         ]);
 
+        $data = $this->prepareLocalizedDestinationData($data);
         $data['slug'] = Str::slug($data['title']);
 
         $destination->update($data);
@@ -127,5 +161,36 @@ class DestinationController extends Controller
         });
 
         return redirect()->route('dashboard.destinations.index')->with('success', 'Bestemming verwijderd.');
+    }
+
+    private function prepareLocalizedDestinationData(array $data): array
+    {
+        $titleTranslations = LocalizedContent::fromPayload($data, 'title');
+        $countryTranslations = LocalizedContent::fromPayload($data, 'country');
+        $cityTranslations = LocalizedContent::fromPayload($data, 'city');
+        $descriptionTranslations = LocalizedContent::fromPayload($data, 'description');
+
+        if (! LocalizedContent::primary($titleTranslations)) {
+            throw ValidationException::withMessages([
+                'title_translations.nl' => 'Voeg minimaal een titel toe in een van de taalvelden.',
+            ]);
+        }
+
+        if (! LocalizedContent::primary($countryTranslations)) {
+            throw ValidationException::withMessages([
+                'country_translations.nl' => 'Voeg minimaal een land toe in een van de taalvelden.',
+            ]);
+        }
+
+        $data['title'] = LocalizedContent::primary($titleTranslations);
+        $data['title_translations'] = LocalizedContent::nullable($titleTranslations);
+        $data['country'] = LocalizedContent::primary($countryTranslations);
+        $data['country_translations'] = LocalizedContent::nullable($countryTranslations);
+        $data['city'] = LocalizedContent::primary($cityTranslations);
+        $data['city_translations'] = LocalizedContent::nullable($cityTranslations);
+        $data['description'] = LocalizedContent::primary($descriptionTranslations);
+        $data['description_translations'] = LocalizedContent::nullable($descriptionTranslations);
+
+        return $data;
     }
 }

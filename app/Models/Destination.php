@@ -11,11 +11,15 @@ class Destination extends Model
 {
     protected $fillable = [
         'title',
+        'title_translations',
         'slug',
         'country',
+        'country_translations',
         'continent',
         'city',
+        'city_translations',
         'description',
+        'description_translations',
         'cover_image',
         'latitude',
         'longitude',
@@ -24,6 +28,10 @@ class Destination extends Model
     protected function casts(): array
     {
         return [
+            'title_translations' => 'array',
+            'country_translations' => 'array',
+            'city_translations' => 'array',
+            'description_translations' => 'array',
             'latitude' => 'float',
             'longitude' => 'float',
         ];

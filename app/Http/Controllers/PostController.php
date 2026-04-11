@@ -7,6 +7,7 @@ use App\Models\Destination;
 use App\Models\Post;
 use App\Models\PostMedia;
 use App\Models\Tag;
+use App\Support\LocalizedContent;
 use App\Support\PostDeletion;
 use Carbon\CarbonInterface;
 use Illuminate\Http\RedirectResponse;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -81,9 +83,9 @@ class PostController extends Controller
     {
         return Inertia::render('dashboard/Posts/Form', [
             'post' => null,
-            'destinations' => Destination::query()->orderBy('title')->get(['id', 'title']),
-            'categories' => Category::query()->orderBy('name')->get(['id', 'name']),
-            'tags' => Tag::query()->orderBy('name')->get(['id', 'name']),
+            'destinations' => Destination::query()->orderBy('title')->get(['id', 'title', 'title_translations']),
+            'categories' => Category::query()->orderBy('name')->get(['id', 'name', 'slug']),
+            'tags' => Tag::query()->orderBy('name')->get(['id', 'name', 'name_translations']),
         ]);
     }
 
@@ -96,9 +98,12 @@ class PostController extends Controller
             'destination_id' => $data['destination_id'],
             'category_id' => $data['category_id'],
             'title' => $data['title'],
+            'title_translations' => $data['title_translations'],
             'slug' => Str::slug($data['title']),
             'excerpt' => $data['excerpt'] ?? null,
+            'excerpt_translations' => $data['excerpt_translations'],
             'body' => $data['body'],
+            'body_translations' => $data['body_translations'],
             'cover_image' => $this->determineCoverImage($request),
             'video_url' => null,
             'status' => $data['status'],
@@ -121,8 +126,11 @@ class PostController extends Controller
                 'destination_id' => $post->destination_id,
                 'category_id' => $post->category_id,
                 'title' => $post->title,
+                'title_translations' => LocalizedContent::formValues($post->title_translations, $post->title),
                 'excerpt' => $post->excerpt,
+                'excerpt_translations' => LocalizedContent::formValues($post->excerpt_translations, $post->excerpt),
                 'body' => $post->body,
+                'body_translations' => LocalizedContent::formValues($post->body_translations, $post->body),
                 'cover_image' => $post->cover_image,
                 'video_url' => $post->video_url,
                 'status' => $post->status,
@@ -135,9 +143,9 @@ class PostController extends Controller
                     'original_name' => $media->original_name,
                 ])->values(),
             ],
-            'destinations' => Destination::query()->orderBy('title')->get(['id', 'title']),
-            'categories' => Category::query()->orderBy('name')->get(['id', 'name']),
-            'tags' => Tag::query()->orderBy('name')->get(['id', 'name']),
+            'destinations' => Destination::query()->orderBy('title')->get(['id', 'title', 'title_translations']),
+            'categories' => Category::query()->orderBy('name')->get(['id', 'name', 'slug']),
+            'tags' => Tag::query()->orderBy('name')->get(['id', 'name', 'name_translations']),
         ]);
     }
 
@@ -149,9 +157,12 @@ class PostController extends Controller
             'destination_id' => $data['destination_id'],
             'category_id' => $data['category_id'],
             'title' => $data['title'],
+            'title_translations' => $data['title_translations'],
             'slug' => Str::slug($data['title']),
             'excerpt' => $data['excerpt'] ?? null,
+            'excerpt_translations' => $data['excerpt_translations'],
             'body' => $data['body'],
+            'body_translations' => $data['body_translations'],
             'cover_image' => $this->determineCoverImage($request, $post),
             'status' => $data['status'],
             'published_at' => $this->normalizePublishedAt($data['status'], $data['published_at'] ?? null),
@@ -173,12 +184,18 @@ class PostController extends Controller
 
     private function validatePost(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'destination_id' => ['required', 'exists:destinations,id'],
             'category_id' => ['required', 'exists:categories,id'],
-            'title' => ['required', 'string', 'max:255'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'title_translations' => ['nullable', 'array'],
+            'title_translations.*' => ['nullable', 'string', 'max:255'],
             'excerpt' => ['nullable', 'string', 'max:400'],
-            'body' => ['required', 'string'],
+            'excerpt_translations' => ['nullable', 'array'],
+            'excerpt_translations.*' => ['nullable', 'string', 'max:400'],
+            'body' => ['nullable', 'string'],
+            'body_translations' => ['nullable', 'array'],
+            'body_translations.*' => ['nullable', 'string'],
             'cover_image_url' => ['nullable', 'url', 'max:2048'],
             'cover_image_upload' => ['nullable', 'image', 'max:10240'],
             'status' => ['required', 'in:draft,published'],
@@ -190,6 +207,31 @@ class PostController extends Controller
             'remove_media_ids' => ['array'],
             'remove_media_ids.*' => ['integer'],
         ]);
+
+        $titleTranslations = LocalizedContent::fromPayload($data, 'title');
+        $bodyTranslations = LocalizedContent::fromPayload($data, 'body');
+        $excerptTranslations = LocalizedContent::fromPayload($data, 'excerpt');
+
+        if (! LocalizedContent::primary($titleTranslations)) {
+            throw ValidationException::withMessages([
+                'title_translations.nl' => 'Voeg minimaal een titel toe in een van de taalvelden.',
+            ]);
+        }
+
+        if (! LocalizedContent::primary($bodyTranslations)) {
+            throw ValidationException::withMessages([
+                'body_translations.nl' => 'Voeg minimaal een verhaaltekst toe in een van de taalvelden.',
+            ]);
+        }
+
+        $data['title'] = LocalizedContent::primary($titleTranslations);
+        $data['title_translations'] = LocalizedContent::nullable($titleTranslations);
+        $data['excerpt'] = LocalizedContent::primary($excerptTranslations);
+        $data['excerpt_translations'] = LocalizedContent::nullable($excerptTranslations);
+        $data['body'] = LocalizedContent::primary($bodyTranslations);
+        $data['body_translations'] = LocalizedContent::nullable($bodyTranslations);
+
+        return $data;
     }
 
     private function determineCoverImage(Request $request, ?Post $post = null): ?string

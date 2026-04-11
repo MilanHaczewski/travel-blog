@@ -1,12 +1,16 @@
 import { Link, router } from '@inertiajs/react';
 
+import { useI18n } from '@/lib/i18n';
 import DashboardLayout from '@/Layouts/DashboardLayout';
+import type { LocalizedText } from '@/types';
 
 type Props = {
     destinations: Array<{
         id: number;
         title: string;
+        title_translations?: LocalizedText | null;
         country: string;
+        country_translations?: LocalizedText | null;
         continent: string | null;
         posts_count: number;
         latitude: number | null;
@@ -15,10 +19,14 @@ type Props = {
 };
 
 export default function DashboardDestinationsIndex({ destinations }: Props) {
+    const { continent, count, t, translated } = useI18n();
+
     const removeDestination = (destination: Props['destinations'][number]) => {
-        const confirmation = destination.posts_count > 0
-            ? `Weet je zeker dat je ${destination.title} wilt verwijderen? Dit verwijdert ook ${destination.posts_count} gekoppelde posts.`
-            : `Weet je zeker dat je ${destination.title} wilt verwijderen?`;
+        const destinationTitle = translated(destination.title_translations, destination.title);
+        const confirmation =
+            destination.posts_count > 0
+                ? t('dashboardDestinations.deleteWithPosts', { count: destination.posts_count, title: destinationTitle })
+                : t('dashboardDestinations.deleteConfirm', { title: destinationTitle });
 
         if (!window.confirm(confirmation)) {
             return;
@@ -33,11 +41,11 @@ export default function DashboardDestinationsIndex({ destinations }: Props) {
         <DashboardLayout>
             <div className="mb-6 flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900">Bestemmingen</h1>
-                    <p className="mt-2 text-slate-600">Beheer de plekken waar je verhalen over schrijft.</p>
+                    <h1 className="text-3xl font-bold text-slate-900">{t('dashboardDestinations.heading')}</h1>
+                    <p className="mt-2 text-slate-600">{t('dashboardDestinations.body')}</p>
                 </div>
                 <Link href="/dashboard/destinations/create" className="rounded-full bg-[#0f766e] px-5 py-3 text-sm font-semibold text-white">
-                    Nieuwe bestemming
+                    {t('dashboardDestinations.newDestination')}
                 </Link>
             </div>
 
@@ -45,20 +53,20 @@ export default function DashboardDestinationsIndex({ destinations }: Props) {
                 {destinations.map((destination) => (
                     <div key={destination.id} className="flex items-center justify-between gap-4 border-b border-slate-100 px-6 py-4 last:border-b-0">
                         <div>
-                            <p className="font-semibold text-slate-900">{destination.title}</p>
+                            <p className="font-semibold text-slate-900">{translated(destination.title_translations, destination.title)}</p>
                             <p className="text-sm text-slate-500">
-                                {destination.country}
-                                {destination.continent ? ` / ${destination.continent}` : ''}
-                                {` / ${destination.posts_count} posts / `}
-                                {destination.latitude !== null && destination.longitude !== null ? 'pin staat klaar' : 'nog geen kaartpin'}
+                                {translated(destination.country_translations, destination.country)}
+                                {destination.continent ? ` / ${continent(destination.continent)}` : ''}
+                                {` / ${count('post', destination.posts_count)} / `}
+                                {destination.latitude !== null && destination.longitude !== null ? t('dashboardDestinations.pinReady') : t('dashboardDestinations.noPin')}
                             </p>
                         </div>
                         <div className="flex items-center gap-4">
                             <Link href={`/dashboard/destinations/${destination.id}/edit`} className="text-sm font-semibold text-slate-700">
-                                Bewerken
+                                {t('dashboardDestinations.edit')}
                             </Link>
                             <button type="button" onClick={() => removeDestination(destination)} className="text-sm font-semibold text-[#cb5b4c]">
-                                Verwijderen
+                                {t('dashboardDestinations.delete')}
                             </button>
                         </div>
                     </div>

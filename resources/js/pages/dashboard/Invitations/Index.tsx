@@ -1,6 +1,7 @@
 import { router, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 
+import { useI18n } from '@/lib/i18n';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 
 type Props = {
@@ -20,6 +21,7 @@ type Props = {
 };
 
 export default function DashboardInvitationsIndex({ invitations }: Props) {
+    const { status, t } = useI18n();
     const form = useForm({
         email: '',
     });
@@ -34,15 +36,15 @@ export default function DashboardInvitationsIndex({ invitations }: Props) {
     return (
         <DashboardLayout>
             <div className="mb-6">
-                <h1 className="text-3xl font-bold text-slate-900">Invite links</h1>
-                <p className="mt-2 text-slate-600">Maak een uitnodigingslink aan voor een nieuwe administrator en stuur die handmatig door.</p>
+                <h1 className="text-3xl font-bold text-slate-900">{t('dashboardInvitations.heading')}</h1>
+                <p className="mt-2 text-slate-600">{t('dashboardInvitations.body')}</p>
             </div>
 
             <div className="grid gap-8 xl:grid-cols-[360px_minmax(0,1fr)]">
                 <form onSubmit={submit} className="rounded-3xl border border-white/70 bg-white p-6 shadow-sm">
-                    <h2 className="text-xl font-semibold text-slate-900">Nieuwe uitnodiging</h2>
+                    <h2 className="text-xl font-semibold text-slate-900">{t('dashboardInvitations.newInvitation')}</h2>
                     <label className="mt-5 block space-y-2">
-                        <span className="text-sm font-semibold text-slate-700">E-mail van de administrator</span>
+                        <span className="text-sm font-semibold text-slate-700">{t('dashboardInvitations.adminEmail')}</span>
                         <input
                             type="email"
                             value={form.data.email}
@@ -53,7 +55,7 @@ export default function DashboardInvitationsIndex({ invitations }: Props) {
                     </label>
 
                     <button type="submit" disabled={form.processing} className="mt-5 rounded-full bg-[#0f766e] px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">
-                        Invite link maken
+                        {t('dashboardInvitations.create')}
                     </button>
                 </form>
 
@@ -63,10 +65,12 @@ export default function DashboardInvitationsIndex({ invitations }: Props) {
                             <div className="flex flex-wrap items-center justify-between gap-4">
                                 <div>
                                     <p className="font-semibold text-slate-900">{invitation.email}</p>
-                                    <p className="text-sm text-slate-500">Aangemaakt door {invitation.inviter?.name ?? 'Onbekend'}</p>
+                                    <p className="text-sm text-slate-500">
+                                        {t('dashboardInvitations.createdBy', { name: invitation.inviter?.name ?? t('dashboardInvitations.unknown') })}
+                                    </p>
                                 </div>
                                 <span className="rounded-full bg-[#e6f4f1] px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-[#0f766e]">
-                                    {invitation.status}
+                                    {status('invitation', invitation.status)}
                                 </span>
                             </div>
 
@@ -80,7 +84,7 @@ export default function DashboardInvitationsIndex({ invitations }: Props) {
                                     onClick={() => navigator.clipboard.writeText(invitation.invite_url)}
                                     className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
                                 >
-                                    Link kopieren
+                                    {t('dashboardInvitations.copyLink')}
                                 </button>
                                 {invitation.status === 'open' ? (
                                     <button
@@ -88,7 +92,7 @@ export default function DashboardInvitationsIndex({ invitations }: Props) {
                                         onClick={() => router.delete(`/dashboard/invitations/${invitation.id}`)}
                                         className="rounded-full border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
                                     >
-                                        Intrekken
+                                        {t('dashboardInvitations.revoke')}
                                     </button>
                                 ) : null}
                             </div>

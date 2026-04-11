@@ -1,20 +1,28 @@
 import { Link } from '@inertiajs/react';
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 
+import { useI18n } from '@/lib/i18n';
+import type { LocalizedText } from '@/types';
+
 type FeaturedPost = {
     title: string;
+    title_translations?: LocalizedText | null;
     slug: string;
     excerpt: string | null;
+    excerpt_translations?: LocalizedText | null;
     cover_image: string | null;
 };
 
 export type MapLocation = {
     id: number;
     title: string;
+    title_translations?: LocalizedText | null;
     slug: string;
     country: string;
+    country_translations?: LocalizedText | null;
     continent: string | null;
     city: string | null;
+    city_translations?: LocalizedText | null;
     cover_image: string | null;
     latitude: number;
     longitude: number;
@@ -271,6 +279,7 @@ function bubblePosition(location: PositionedLocation) {
 }
 
 function TravelMap({ locations, focusRegion = 'Alles' }: Props) {
+    const { continent: continentLabel, count, t, translated } = useI18n();
     const viewBox = useMemo(() => viewBoxForRegion(focusRegion, locations), [focusRegion, locations]);
     const fitMetrics = useMemo(() => fitMetricsForViewBox(viewBox), [viewBox]);
     const positionedLocations = useMemo(() => spreadLocations(locations, viewBox, fitMetrics), [locations, viewBox, fitMetrics]);
@@ -315,7 +324,7 @@ function TravelMap({ locations, focusRegion = 'Alles' }: Props) {
     if (positionedLocations.length === 0) {
         return (
             <div className="rounded-[2rem] border border-dashed border-[#cb5b4c]/20 bg-white/70 p-10 text-slate-500">
-                Zodra een bestemming coordinaten en een gepubliceerd verhaal heeft, verschijnt hij hier als pin op de kaart.
+                {t('travelMap.empty')}
             </div>
         );
     }
@@ -370,8 +379,8 @@ function TravelMap({ locations, focusRegion = 'Alles' }: Props) {
                         src="/blank-map-equirectangular.svg"
                         alt=""
                         aria-hidden="true"
-                            className="pointer-events-none absolute inset-0 h-full w-full select-none opacity-[0.18]"
-                            style={{
+                        className="pointer-events-none absolute inset-0 h-full w-full select-none opacity-[0.18]"
+                        style={{
                             filter: 'blur(9px) sepia(0.18) saturate(0.86) hue-rotate(6deg) brightness(1.03)',
                         }}
                     />
@@ -380,9 +389,9 @@ function TravelMap({ locations, focusRegion = 'Alles' }: Props) {
                         src="/blank-map-equirectangular.svg"
                         alt=""
                         aria-hidden="true"
-                            className="pointer-events-none absolute inset-0 h-full w-full select-none opacity-[0.28]"
-                            style={{
-                                mixBlendMode: 'multiply',
+                        className="pointer-events-none absolute inset-0 h-full w-full select-none opacity-[0.28]"
+                        style={{
+                            mixBlendMode: 'multiply',
                             filter: 'sepia(0.22) saturate(0.72) hue-rotate(10deg) brightness(0.86)',
                         }}
                     />
@@ -414,6 +423,12 @@ function TravelMap({ locations, focusRegion = 'Alles' }: Props) {
                         left: `${location.x}%`,
                         top: `${location.y}%`,
                     };
+                    const locationTitle = translated(location.title_translations, location.title);
+                    const featuredTitle = location.featured_post ? translated(location.featured_post.title_translations, location.featured_post.title) : t('travelMap.fallbackTitle');
+                    const featuredExcerpt = location.featured_post ? translated(location.featured_post.excerpt_translations, location.featured_post.excerpt) : '';
+                    const meta = [location.continent ? continentLabel(location.continent) : null, translated(location.country_translations, location.country), count('story', location.post_count)]
+                        .filter(Boolean)
+                        .join(' / ');
 
                     return (
                         <div
@@ -427,7 +442,7 @@ function TravelMap({ locations, focusRegion = 'Alles' }: Props) {
                                 onFocus={() => setActiveId(location.id)}
                                 onClick={() => setActiveId(location.id)}
                                 className="relative flex h-8 w-8 items-center justify-center"
-                                aria-label={`Bekijk verhalen over ${location.title}`}
+                                aria-label={t('travelMap.aria', { title: locationTitle })}
                             >
                                 <span className={`absolute h-8 w-8 rounded-full bg-[#ffd66b]/35 ${isActive ? 'animate-ping' : ''}`} />
                                 <span
@@ -440,38 +455,29 @@ function TravelMap({ locations, focusRegion = 'Alles' }: Props) {
                             </button>
 
                             {isActive ? (
-                                <div
-                                        className={`absolute z-30 w-64 overflow-hidden rounded-[1.6rem] border border-white/80 bg-white/96 shadow-[0_18px_45px_rgba(15,23,42,0.18)] backdrop-blur-sm ${bubblePosition(location)}`}
-                                    >
+                                <div className={`absolute z-30 w-64 overflow-hidden rounded-[1.6rem] border border-white/80 bg-white/96 shadow-[0_18px_45px_rgba(15,23,42,0.18)] backdrop-blur-sm ${bubblePosition(location)}`}>
                                     <img
                                         src={previewImage}
-                                        alt={location.featured_post?.title ?? location.title}
+                                        alt={featuredTitle || locationTitle}
                                         className="h-28 w-full object-cover"
                                     />
                                     <div className="p-4">
-                                        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#cb5b4c]">
-                                            {location.continent ? `${location.continent} / ` : ''}
-                                            {location.country} / {location.post_count} {location.post_count === 1 ? 'verhaal' : 'verhalen'}
-                                        </p>
+                                        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#cb5b4c]">{meta}</p>
                                         <Link href={primaryHref} className="mt-2 block text-lg font-black text-slate-900 transition hover:text-[#cb5b4c]">
-                                            {location.title}
+                                            {locationTitle}
                                         </Link>
-                                        <p className="mt-1 text-sm font-semibold text-slate-700">
-                                            {location.featured_post?.title ?? 'Nieuw verhaal in voorbereiding'}
-                                        </p>
-                                        {location.featured_post?.excerpt ? (
-                                            <p className="mt-2 text-sm leading-6 text-slate-600">{location.featured_post.excerpt}</p>
+                                        <p className="mt-1 text-sm font-semibold text-slate-700">{featuredTitle}</p>
+                                        {featuredExcerpt ? (
+                                            <p className="mt-2 text-sm leading-6 text-slate-600">{featuredExcerpt}</p>
                                         ) : (
-                                            <p className="mt-2 text-sm leading-6 text-slate-600">
-                                                Deze pin brengt jullie bezoekers meteen naar het verhaal achter deze plek.
-                                            </p>
+                                            <p className="mt-2 text-sm leading-6 text-slate-600">{t('travelMap.fallbackBody')}</p>
                                         )}
                                         <div className="mt-4 flex items-center justify-between gap-3 text-sm">
                                             <Link href={primaryHref} className="font-semibold text-[#cb5b4c]">
-                                                Lees post
+                                                {t('travelMap.readPost')}
                                             </Link>
                                             <Link href={`/destinations/${location.slug}`} className="font-semibold text-slate-500">
-                                                Alle verhalen
+                                                {t('travelMap.allStories')}
                                             </Link>
                                         </div>
                                     </div>
@@ -483,14 +489,12 @@ function TravelMap({ locations, focusRegion = 'Alles' }: Props) {
             </div>
 
             <div className="absolute left-5 top-5 z-10 max-w-sm rounded-[1.8rem] border border-white/70 bg-[#fff7ef]/84 px-5 py-4 text-slate-800 shadow-[0_18px_40px_rgba(15,23,42,0.12)] backdrop-blur-md">
-                <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#cb5b4c]/80">Story map</p>
+                <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#cb5b4c]/80">{t('travelMap.label')}</p>
                 <h3 className="mt-2 text-2xl font-black">
-                    {focusRegion === 'Alles' ? 'Van Colombia tot Europa' : `Focus op ${focusRegion}`}
+                    {focusRegion === 'Alles' ? t('travelMap.allTitle') : t('travelMap.regionTitle', { region: continentLabel(focusRegion) })}
                 </h3>
                 <p className="mt-2 text-sm leading-6 text-slate-700/85">
-                    {focusRegion === 'Alles'
-                        ? 'Hover op een pin en open meteen het verhaal achter die plek. De kaart blijft breed, maar heeft nu wel weer die rustige uitleg terug.'
-                        : 'De kaart zoomt nu op jullie pins binnen dit continent en houdt tegelijk de warme contextbalk zichtbaar.'}
+                    {focusRegion === 'Alles' ? t('travelMap.allBody') : t('travelMap.regionBody')}
                 </p>
             </div>
         </div>

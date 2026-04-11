@@ -2,9 +2,11 @@ import { Head, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 
 import Container from '@/components/container';
+import { useI18n } from '@/lib/i18n';
 import AppLayout from '@/Layouts/AppLayout';
 
 export default function Login() {
+    const { t } = useI18n();
     const form = useForm({
         email: '',
         password: '',
@@ -18,20 +20,18 @@ export default function Login() {
 
     return (
         <AppLayout>
-            <Head title="Login" />
+            <Head title={t('authLogin.title')} />
 
             <section className="py-20">
                 <Container className="max-w-2xl">
                     <div className="rounded-[2rem] border border-white/70 bg-white/85 p-10 shadow-sm">
                         <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#cb5b4c]">Tulips & Arepas</p>
-                        <h1 className="mt-4 text-4xl font-black text-slate-900">Login</h1>
-                        <p className="mt-4 text-slate-600">
-                            Milan en Juliana kunnen hier inloggen om verhalen, foto’s, video’s en nieuwe avonturen toe te voegen.
-                        </p>
+                        <h1 className="mt-4 text-4xl font-black text-slate-900">{t('authLogin.heading')}</h1>
+                        <p className="mt-4 text-slate-600">{t('authLogin.body')}</p>
 
                         <form onSubmit={submit} className="mt-8 space-y-5">
                             <label className="block space-y-2">
-                                <span className="text-sm font-semibold text-slate-700">E-mail</span>
+                                <span className="text-sm font-semibold text-slate-700">{t('postsShow.email')}</span>
                                 <input
                                     type="email"
                                     value={form.data.email}
@@ -42,7 +42,7 @@ export default function Login() {
                             </label>
 
                             <label className="block space-y-2">
-                                <span className="text-sm font-semibold text-slate-700">Wachtwoord</span>
+                                <span className="text-sm font-semibold text-slate-700">{t('authInvitation.password')}</span>
                                 <input
                                     type="password"
                                     value={form.data.password}
@@ -57,11 +57,11 @@ export default function Login() {
                                     checked={form.data.remember}
                                     onChange={(event) => form.setData('remember', event.target.checked)}
                                 />
-                                Ingelogd blijven op dit apparaat
+                                {t('authLogin.remember')}
                             </label>
 
                             <button type="submit" disabled={form.processing} className="rounded-full bg-[#cb5b4c] px-6 py-3 text-sm font-semibold text-white disabled:opacity-60">
-                                Inloggen
+                                {t('authLogin.submit')}
                             </button>
                         </form>
                     </div>

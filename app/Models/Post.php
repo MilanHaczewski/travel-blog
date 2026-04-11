@@ -16,9 +16,12 @@ class Post extends Model
         'destination_id',
         'category_id',
         'title',
+        'title_translations',
         'slug',
         'excerpt',
+        'excerpt_translations',
         'body',
+        'body_translations',
         'cover_image',
         'video_url',
         'status',
@@ -28,6 +31,9 @@ class Post extends Model
     protected function casts(): array
     {
         return [
+            'title_translations' => 'array',
+            'excerpt_translations' => 'array',
+            'body_translations' => 'array',
             'published_at' => 'datetime',
         ];
     }
